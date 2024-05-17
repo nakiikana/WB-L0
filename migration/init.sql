@@ -4,8 +4,7 @@ CREATE TABLE IF NOT EXISTS orders (
     track_number text NOT NULL, 
     entry text NOT NULL, 
     delivery_id bigint foreign key REFERENCES delivery(id), 
-    payment_id bigint foreign key REFERENCES payment(id),
-    items_id bigint foreign key REFERENCES items(id), 
+    payment_id bigint foreign key REFERENCES payment(id), 
     locale text NOT NULL, 
     intersan_signature text NOT NULL, 
     customer_id text NOT NULL, 
@@ -43,13 +42,8 @@ CREATE TABLE IF NOT EXISTS payment (
 
 CREATE TABLE IF NOT EXISTS items (
     id bigserial primary key NOT NULL, 
-
-);
-
-CREATE TABLE IF NOT EXISTS item (
-    id bigserial primary key NOT NULL, 
     chrt_id bigint NOT NULL, 
-    track_number text NOT NULL, 
+    track_number text foreign key REFERENCES order(track_number) NOT NULL, 
     price bigint NOT NULL,
     rid text NOT NULL,
     name text NOT NULL, 
