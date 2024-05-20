@@ -1,4 +1,3 @@
-
 CREATE TABLE IF NOT EXISTS delivery (
     id bigserial primary key NOT NULL, 
     name text NOT NULL, 
@@ -22,16 +21,17 @@ CREATE TABLE IF NOT EXISTS payment (
     delivery_cost bigint NOT NULL, 
     goods_total bigint NOT NULL, 
     custom_fee bigint NOT NULL
-); 
-
+);
 
 CREATE TABLE IF NOT EXISTS orders (
     id bigserial primary key NOT NULL,
     order_uid uuid NOT NULL, 
-    track_number text NOT NULL, 
+    track_number text NOT NULL UNIQUE, 
     entry text NOT NULL, 
-    delivery_id bigint foreign key REFERENCES delivery(id) on delete cascade, 
-    payment_id bigint foreign key REFERENCES payment(id) on delete cascade, 
+    delivery_id bigint NOT NULL, 
+    payment_id bigint NOT NULL, 
+    foreign key (delivery_id) REFERENCES delivery (id) on delete cascade, 
+    foreign key (payment_id) REFERENCES payment(id) on delete cascade, 
     locale text NOT NULL, 
     intersan_signature text NOT NULL, 
     customer_id text NOT NULL, 
@@ -44,8 +44,9 @@ CREATE TABLE IF NOT EXISTS orders (
 
 CREATE TABLE IF NOT EXISTS items (
     id bigserial primary key NOT NULL, 
-    chrt_id bigint NOT NULL, 
-    track_number text foreign key REFERENCES order(track_number) on delete cascade, 
+    chrt_id bigint NOT NULL,
+    track_number text NOT NULL,
+    foreign key (track_number) REFERENCES orders (track_number) on delete cascade, 
     price bigint NOT NULL,
     rid text NOT NULL,
     name text NOT NULL, 
