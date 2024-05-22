@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,7 +9,6 @@ import (
 	"tools/internals/repository"
 	"tools/internals/server"
 	"tools/internals/service"
-	st "tools/internals/stan"
 	publicher "tools/internals/stan/stan-pub"
 	subscriber "tools/internals/stan/stan-sub"
 
@@ -38,20 +36,11 @@ func main() {
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 	logrus.Printf("Server started listening on port: %s\n", conf.Server.Port)
 
-	//creating nats connection
-	nc, err := st.Connect()
+	sc, err := stan.Connect("test-cluster", "subscriber")
 	if err != nil {
 		logrus.Fatalf("%v\n", err)
 	}
-	defer nc.CloseConnection()
-
-	//creating stan connection
-	log.Println(nc.URL)
-	sc, err := stan.Connect("test", "subscriber", stan.NatsURL(nc.URL))
-	if err != nil {
-		logrus.Fatalf("%v\n", err)
-	}
-	logrus.Printf("Connected to %s clusterID: [%s] clientID: [%s]\n", nc.URL, "test", "subscriber")
+	logrus.Printf("Connected to STAN clusterID: [%s] clientID: [%s]\n", "test-cluster", "subscriber")
 	pub := publicher.NewPublisher(sc)
 	_, err = subscriber.NewSubscriber(sc, "order")
 	enough := make(chan bool, 1)

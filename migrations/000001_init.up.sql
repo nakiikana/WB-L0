@@ -15,12 +15,12 @@ CREATE TABLE IF NOT EXISTS payment (
     request_id text NOT NULL, 
     currency text NOT NULL, 
     provider text NOT NULL, 
-    amount bigint NOT NULL, 
+    amount int NOT NULL, 
     payment_dt bigint NOT NULL, 
     bank text NOT NULL, 
-    delivery_cost bigint NOT NULL, 
-    goods_total bigint NOT NULL, 
-    custom_fee bigint NOT NULL
+    delivery_cost int NOT NULL, 
+    goods_total int NOT NULL, 
+    custom_fee int NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS orders (
@@ -47,12 +47,12 @@ CREATE TABLE IF NOT EXISTS items (
     chrt_id bigint NOT NULL,
     track_number text NOT NULL,
     foreign key (track_number) REFERENCES orders (track_number) on delete cascade, 
-    price bigint NOT NULL,
+    price int NOT NULL,
     rid text NOT NULL,
     name text NOT NULL, 
     sale int NOT NULL, 
     size text NOT NULL, 
-    total_price bigint NOT NULL, 
+    total_price int NOT NULL, 
     nm_id bigint NOT NULL, 
     brand text NOT NULL, 
     status int NOT NULL

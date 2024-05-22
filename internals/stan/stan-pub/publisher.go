@@ -1,7 +1,10 @@
 package publicher
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
+	"tools/internals/stan/stan-pub/data"
 
 	"github.com/nats-io/stan.go"
 	"github.com/pkg/errors"
@@ -69,13 +72,19 @@ func NewPublisher(sc stan.Conn) *Publisher {
 }
 
 func (sub *Publisher) SendWithTimeout(done chan bool) error {
+
 	go func() error {
+		data, err := json.Marshal(data.GenerateOrder())
+		fmt.Println("here1: ", string(data))
+		if err != nil {
+			logrus.Errorf("Could not generate new order")
+		}
 		select {
 		case <-done:
 			break
 		default:
 			time.Sleep(5 * time.Second)
-			if err := sub.sc.Publish("order", []byte(str)); err != nil {
+			if err := sub.sc.Publish("order", data); err != nil {
 				return errors.Wrap(err, "error during publish")
 			}
 			logrus.Println("New message published")
