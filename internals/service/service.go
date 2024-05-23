@@ -1,13 +1,18 @@
 package service
 
 import (
+	"tools/internals/models"
 	"tools/internals/repository"
 )
 
 type Service struct {
-	rp *repository.Repository
+	Order
 }
 
 func NewService(repository *repository.Repository) *Service {
-	return &Service{rp: repository}
+	return &Service{Order: NewOrderService(repository)}
+}
+
+type Order interface {
+	NewOrder(order models.Orders) error
 }

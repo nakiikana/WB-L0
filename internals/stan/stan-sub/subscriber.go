@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"tools/internals/models"
+	"tools/internals/service"
 
 	"github.com/nats-io/stan.go"
 	"github.com/pkg/errors"
@@ -12,11 +13,12 @@ import (
 )
 
 type Subscriber struct {
-	sc stan.Conn
+	sc      stan.Conn
+	service Order
 }
 
-func NewSubscriber(sc stan.Conn, subj string) (*Subscriber, error) {
-	subsciber := &Subscriber{sc: sc}
+func NewSubscriber(sc stan.Conn, subj string, s service.Service) (*Subscriber, error) {
+	subsciber := &Subscriber{sc: sc, service: s}
 	_, err := subsciber.sc.Subscribe(subj, func(m *stan.Msg) {
 		logrus.Println("Reading message from subject")
 		err := subsciber.saveMessage(m)
@@ -42,6 +44,10 @@ func (s *Subscriber) saveMessage(m *stan.Msg) error {
 	if err != nil {
 		return errors.Wrap(err, "subscriber: could not unmarshal the order")
 	}
-	fmt.Println("here: ", order)
+	s.service.NewOrder(order)
 	return nil
+}
+
+type Order interface {
+	NewOrder(order models.Orders) error
 }

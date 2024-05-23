@@ -41,8 +41,9 @@ func main() {
 		logrus.Fatalf("%v\n", err)
 	}
 	logrus.Printf("Connected to STAN clusterID: [%s] clientID: [%s]\n", "test-cluster", "subscriber")
+
 	pub := publicher.NewPublisher(sc)
-	_, err = subscriber.NewSubscriber(sc, "order")
+	_, err = subscriber.NewSubscriber(sc, "order", *service)
 	enough := make(chan bool, 1)
 	if err != nil {
 		logrus.Fatalf("%v\n", err)

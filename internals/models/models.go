@@ -37,8 +37,6 @@ type Orders struct {
 	OrderID           uuid.UUID `json:"order_id"`
 	TrackNumber       string    `json:"track_number"`
 	Entry             string    `json:"entry"`
-	DeliveryID        big.Int   `json:"delivery_id"` //?
-	PaymentID         big.Int   `json:"payment_id"`  //?
 	Delivery          Delivery  `json:"delivery"`
 	Payment           Payment   `json:"payment"`
 	Locale            string    `json:"payment_dt"`
