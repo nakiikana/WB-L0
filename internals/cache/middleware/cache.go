@@ -32,3 +32,7 @@ func NewRedisConnection(config *config.Configuration) *redis.Client {
 	logrus.Printf("Successfully started a new redis connection: %s\n", ping)
 	return client
 }
+
+// func (c *Cache) NewOrder(order models.Orders) error {
+
+// }

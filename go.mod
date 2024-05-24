@@ -52,6 +52,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.18.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/tjgq/ticker v0.0.0-20140913211110-8b4870134629 // indirect
 	go.etcd.io/bbolt v1.3.8 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect

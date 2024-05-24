@@ -17,6 +17,5 @@ func NewHandler(service *service.Service) *Handler {
 func (h *Handler) InitRoutes() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/order-info", h.OrderInfo).Methods("GET")
-	r.HandleFunc("/new-order", h.NewOrder).Methods("POST")
 	return r
 }

@@ -2,7 +2,6 @@ package subscriber
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"tools/internals/models"
 	"tools/internals/service"
@@ -40,11 +39,13 @@ func PrintMsg(m *stan.Msg, i int) {
 func (s *Subscriber) saveMessage(m *stan.Msg) error {
 	var order models.Orders
 	err := json.Unmarshal(m.Data, &order)
-	fmt.Println(order.Delivery.City)
 	if err != nil {
 		return errors.Wrap(err, "subscriber: could not unmarshal the order")
 	}
-	s.service.NewOrder(order)
+	err = s.service.NewOrder(order)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

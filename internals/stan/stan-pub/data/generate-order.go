@@ -1,16 +1,13 @@
 package data
 
 import (
-	crand "crypto/rand"
 	"fmt"
-	"math/big"
 	"math/rand"
 	"time"
 	"tools/internals/models"
 
 	"github.com/google/uuid"
 	"github.com/haydenwoodhead/burner.kiwi/emailgenerator"
-	"github.com/sirupsen/logrus"
 )
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 "
@@ -46,10 +43,15 @@ func GenerateOrder() *models.Orders {
 		CustomerID:        GenerateRandomString(64),
 		DeliveryService:   GenerateRandomString(32),
 		Shardkey:          GenerateRandomString(64),
-		SmID:              GenerateRandomBigInt(),
+		SmID:              GenerateRandomInt64(),
 		DateCreated:       GenerateRandomTime(),
 		OofShared:         GenerateRandomString(32),
 	}
+	Items := make([]models.Items, GenerateRandomInt(32))
+	for i := range Items {
+		Items[i] = *GenerateItem(order.TrackNumber)
+	}
+	order.Items = Items
 	return &order
 }
 
@@ -73,7 +75,7 @@ func GeneratePayment() models.Payment {
 		Currency:     PickRandomElement(currency),
 		Provider:     PickRandomElement(providers),
 		Amount:       GenerateRandomInt(0),
-		PaymentDT:    GenerateRandomBigInt(),
+		PaymentDT:    GenerateRandomInt64(),
 		Bank:         PickRandomElement(banks),
 		DeliveryCost: GenerateRandomInt(0),
 		GoodsTotal:   GenerateRandomInt(0),
@@ -82,16 +84,16 @@ func GeneratePayment() models.Payment {
 	return payment
 }
 
-func GenerateItem() *models.Items {
+func GenerateItem(trackNumber string) *models.Items {
 	item := models.Items{
-		ChrtID:      GenerateRandomBigInt(),
-		TrackNumber: GenerateRandomString(64),
+		ChrtID:      GenerateRandomInt64(),
+		TrackNumber: trackNumber,
 		Price:       GenerateRandomInt(0),
 		Rid:         GenerateRandomString(64),
 		Name:        GenerateRandomString(64),
 		Sale:        GenerateRandomInt(100),
 		Size:        GenerateRandomString(64),
-		NmID:        GenerateRandomBigInt(),
+		NmID:        GenerateRandomInt64(),
 		Brand:       GenerateRandomString(16),
 		Status:      GenerateRandomInt(0),
 	}
@@ -131,17 +133,12 @@ func GenerateRandomEmail() string {
 	return randomEmail
 }
 
-func GenerateRandomBigInt() big.Int {
-	var max *big.Int = big.NewInt(0).Exp(big.NewInt(2), big.NewInt(130), nil)
-	n, err := crand.Int(crand.Reader, max)
-	if err != nil {
-		logrus.Errorf("Could not generate bigint: %v\n", err)
-	}
-	return *n
+func GenerateRandomInt64() int64 {
+	return rand.Int63()
 }
 func GenerateRandomInt(max int) int {
 	if max == 0 {
-		return rand.Int()
+		return rand.Intn(2147483647)
 	}
 	return rand.Intn(max)
 }
