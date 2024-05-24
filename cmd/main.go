@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 	"tools/internals/config"
 	"tools/internals/handler"
 	"tools/internals/repository"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/nats-io/stan.go"
 	"github.com/sirupsen/logrus"
+	"github.com/tjgq/ticker"
 )
 
 func main() {
@@ -45,12 +47,15 @@ func main() {
 	pub := publicher.NewPublisher(sc)
 	_, err = subscriber.NewSubscriber(sc, "order", *service)
 	enough := make(chan bool, 1)
+	ticker := NewTicker(3)
+	defer ticker.Stop()
 	if err != nil {
 		logrus.Fatalf("%v\n", err)
 	}
 
 	go func() {
-		if err := pub.SendWithTimeout(enough); err != nil {
+		ticker.Start()
+		if err := pub.SendWithTimeout(enough, ticker); err != nil {
 			logrus.Fatalf("%v", err)
 		}
 	}()
@@ -68,4 +73,8 @@ func main() {
 	}
 
 	logrus.Println("Server stopped")
+}
+
+func NewTicker(duration int) *ticker.Ticker {
+	return ticker.New(time.Duration(time.Duration(duration)) * time.Second)
 }
