@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	cache "tools/internals/cache/middleware"
 	"tools/internals/config"
 	"tools/internals/handler"
 	"tools/internals/repository"
@@ -23,6 +24,7 @@ func main() {
 	if err != nil {
 		logrus.Fatalf(err.Error())
 	}
+
 	db, err := repository.NewPostgresDB(conf)
 	if err != nil {
 		logrus.Fatalf(err.Error())
@@ -32,8 +34,9 @@ func main() {
 	repository := repository.NewRepository(db)
 	service := service.NewService(repository)
 	handler := handler.NewHandler(service)
-	server := server.NewServer(handler.InitRoutes(), conf)
+	cache.NewCache(conf) //start from here
 
+	server := server.NewServer(handler.InitRoutes(), conf)
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 	logrus.Printf("Server started listening on port: %s\n", conf.Server.Port)
@@ -46,12 +49,13 @@ func main() {
 
 	pub := publicher.NewPublisher(sc)
 	_, err = subscriber.NewSubscriber(sc, "order", *service)
-	enough := make(chan bool, 1)
-	ticker := NewTicker(3)
-	defer ticker.Stop()
 	if err != nil {
 		logrus.Fatalf("%v\n", err)
 	}
+
+	enough := make(chan bool, 1)
+	ticker := NewTicker(3)
+	defer ticker.Stop()
 
 	go func() {
 		ticker.Start()
