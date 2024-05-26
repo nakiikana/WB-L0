@@ -6,6 +6,7 @@ import (
 	"tools/internals/models"
 	"tools/internals/service"
 
+	"github.com/google/uuid"
 	"github.com/nats-io/stan.go"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -51,4 +52,5 @@ func (s *Subscriber) saveMessage(m *stan.Msg) error {
 
 type Order interface {
 	NewOrder(order models.Orders) error
+	OrderInfo(uuid uuid.UUID) (models.Orders, error)
 }

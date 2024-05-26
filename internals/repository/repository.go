@@ -3,6 +3,7 @@ package repository
 import (
 	"tools/internals/models"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -16,4 +17,5 @@ func NewRepository(db *sqlx.DB) *Repository {
 
 type Order interface {
 	NewOrder(order models.Orders) error
+	OrderInfo(uuid uuid.UUID) (models.Orders, error)
 }

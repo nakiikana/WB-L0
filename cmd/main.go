@@ -34,7 +34,7 @@ func main() {
 	repository := repository.NewRepository(db)
 	service := service.NewService(repository)
 	handler := handler.NewHandler(service)
-	cache.NewCache(conf) //start from here
+	cache.NewCache(conf)
 
 	server := server.NewServer(handler.InitRoutes(), conf)
 	interrupt := make(chan os.Signal, 1)
@@ -54,7 +54,7 @@ func main() {
 	}
 
 	enough := make(chan bool, 1)
-	ticker := NewTicker(3)
+	ticker := NewTicker(40)
 	defer ticker.Stop()
 
 	go func() {
@@ -82,3 +82,7 @@ func main() {
 func NewTicker(duration int) *ticker.Ticker {
 	return ticker.New(time.Duration(time.Duration(duration)) * time.Second)
 }
+
+//ToDo: Redis
+//ToDo: Proper error handling when rows have hot been found
+//ToDo: (Probably) fixing models so that a more accurate response is returned

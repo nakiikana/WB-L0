@@ -21,4 +21,20 @@ const (
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING id
 	`
+	getOrder = `
+		SELECT * FROM orders
+		WHERE order_uid = $1
+	`
+	getDelivery = `
+		SELECT * FROM delivery
+		WHERE id = $1
+	`
+	getPayment = `
+		SELECT * FROM payment
+		WHERE id = $1
+	`
+	getItems = `
+		SELECT * FROM items
+		WHERE track_number = $1
+	`
 )

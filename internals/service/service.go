@@ -3,6 +3,8 @@ package service
 import (
 	"tools/internals/models"
 	"tools/internals/repository"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -15,4 +17,5 @@ func NewService(repository *repository.Repository) *Service {
 
 type Order interface {
 	NewOrder(order models.Orders) error
+	OrderInfo(uuid uuid.UUID) (models.Orders, error)
 }

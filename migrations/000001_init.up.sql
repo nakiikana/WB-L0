@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS payment (
 
 CREATE TABLE IF NOT EXISTS orders (
     id bigserial primary key NOT NULL,
-    order_uid uuid NOT NULL, 
+    order_uid uuid NOT NULL UNIQUE, 
     track_number text NOT NULL UNIQUE, 
     entry text NOT NULL, 
     delivery_id bigint NOT NULL, 
