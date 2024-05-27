@@ -43,11 +43,33 @@ func (o *OrderRepository) NewOrder(order models.Orders) error {
 	return nil
 }
 
-func (o *OrderRepository) OrderInfo(uuid uuid.UUID) (*models.Orders, error) {
-	var order models.Orders
-	err := o.db.QueryRow(getOrder, uuid).Scan(&order.ID, &order.OrderID, &order.TrackNumber, &order.Entry, &order.Delivery.ID, &order.Payment.ID, &order.Locale, &order.IntersanSignature, &order.CustomerID, &order.DeliveryService, &order.Shardkey, &order.SmID, &order.DateCreated, &order.OofShared)
+func (o *OrderRepository) GetAllOrders() ([]models.Orders, error) {
+	rows, err := o.db.Query(getAllOrders)
+	orders := make([]models.Orders, 0)
 	if err != nil {
-		return nil, errors.Wrap(err, "repository: could not retract order")
+		return nil, errors.Wrap(err, "repository: could not retract orders")
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+	for rows.Next() {
+		var uuid uuid.UUID
+		if err = rows.Scan(&uuid); err != nil {
+			return nil, errors.Wrap(err, "repository: could not retract uuid")
+		}
+		order, err := o.OrderInfo(uuid)
+		if err != nil {
+			return nil, err
+		}
+		orders = append(orders, *order)
+	}
+	return orders, nil
+}
+
+func (o *OrderRepository) OrderInfo(uuid uuid.UUID) (*models.Orders, error) {
+	order, err := o.GetOrder(uuid)
+	if err != nil {
+		return nil, err
 	}
 	payment, err := o.GetPayment(order.Payment.ID)
 	if err != nil {
@@ -59,39 +81,22 @@ func (o *OrderRepository) OrderInfo(uuid uuid.UUID) (*models.Orders, error) {
 		return nil, err
 	}
 	order.Delivery = *delivery
-	rows, err := o.db.Query(getItems, order.TrackNumber)
+
+	order.Items, err = o.GetItems(order.TrackNumber)
 	if err != nil {
-		return nil, errors.Wrap(err, "repository: could not retract items for order")
+		return nil, err
 	}
-	defer func() {
-		_ = rows.Close()
-	}()
-	items := make([]models.Items, 0)
-	for rows.Next() {
-		var item models.Items
-		if err = rows.Scan(&item.ID, &item.ChrtID, &item.TrackNumber, &item.Price, &item.Rid, &item.Name, &item.Sale, &item.Size, &item.TotalPrice, &item.NmID, &item.Brand, &item.Status); err != nil {
-			return &order, errors.Wrap(err, "repository: could not scan a row")
-		}
-		items = append(items, item)
-	}
-	if err = rows.Err(); err != nil {
-		logrus.Errorf("repository: couldn't execute the OrderInfo query: %v", err)
-		return &order, err
-	}
-	order.Items = items
-	return &order, nil
+	return order, nil
 }
 
-// func (o *OrderRepository) GetAllOrders() ([]models.Orders, error) {
-// 	rows, err := o.db.Query(getAllOrders)
-// 	if err != nil {
-// 		return nil, errors.Wrap(err, "repository: could not retract orders")
-// 	}
-// 	defer func() {
-// 		_ = rows.Close()
-// 	}()
-
-// }
+func (o *OrderRepository) GetOrder(uuid uuid.UUID) (*models.Orders, error) {
+	order := &models.Orders{}
+	err := o.db.QueryRow(getOrder, uuid).Scan(&order.ID, &order.OrderID, &order.TrackNumber, &order.Entry, &order.Delivery.ID, &order.Payment.ID, &order.Locale, &order.IntersanSignature, &order.CustomerID, &order.DeliveryService, &order.Shardkey, &order.SmID, &order.DateCreated, &order.OofShared)
+	if err != nil {
+		return nil, errors.Wrap(err, "repository: could not retract order")
+	}
+	return order, nil
+}
 
 func (o *OrderRepository) GetPayment(id int64) (*models.Payment, error) {
 	var payment models.Payment
@@ -112,5 +117,24 @@ func (o *OrderRepository) GetDelivery(id int64) (*models.Delivery, error) {
 }
 
 func (o *OrderRepository) GetItems(trackNumber string) ([]models.Items, error) {
-
+	rows, err := o.db.Query(getItems, trackNumber)
+	if err != nil {
+		return nil, errors.Wrap(err, "repository: could not retract items for order")
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+	items := make([]models.Items, 0)
+	for rows.Next() {
+		var item models.Items
+		if err = rows.Scan(&item.ID, &item.ChrtID, &item.TrackNumber, &item.Price, &item.Rid, &item.Name, &item.Sale, &item.Size, &item.TotalPrice, &item.NmID, &item.Brand, &item.Status); err != nil {
+			return nil, errors.Wrap(err, "repository: could not scan a row")
+		}
+		items = append(items, item)
+	}
+	if err = rows.Err(); err != nil {
+		logrus.Errorf("repository: couldn't execute the OrderInfo query: %v", err)
+		return nil, err
+	}
+	return items, nil
 }

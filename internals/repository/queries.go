@@ -38,6 +38,6 @@ const (
 		WHERE track_number = $1
 	`
 	getAllOrders = `
-		SELECT * FROM orders
+		SELECT order_uid FROM orders
 	`
 )

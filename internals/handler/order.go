@@ -17,8 +17,15 @@ func (h *Handler) OrderInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	order, err := h.s.OrderInfo(uuid)
 	if err != nil {
-		logrus.Errorf("error while retrieving the order: %v", err)
-		return
+		if err.Error() == "no result in cache" {
+			logrus.Warningf("no order found: %v", err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		} else {
+			logrus.Errorf("error while retrieving the order: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
 	orderInfo, err := json.Marshal(order)
 	if err != nil {

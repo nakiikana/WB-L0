@@ -28,3 +28,15 @@ func (s *OrderService) NewOrder(order models.Orders) error {
 func (s *OrderService) OrderInfo(uuid uuid.UUID) (*models.Orders, error) {
 	return s.ch.OrderInfo(uuid)
 }
+
+func (s *OrderService) RecoverCache() error {
+	orders, err := s.rp.GetAllOrders()
+	if err != nil {
+		return err
+	}
+	if err = s.ch.Recover(orders); err != nil {
+		return err
+	}
+	logrus.Println("Cache recovered")
+	return nil
+}

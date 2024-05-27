@@ -39,12 +39,10 @@ func NewRedisConnection(config *config.Configuration) *redis.Client {
 
 func (c *Cache) OrderInfo(key uuid.UUID) (*models.Orders, error) {
 	var val []byte
-	fmt.Println(key)
 	order := &models.Orders{}
 	err := c.Connection.Get(context.Background(), key.String()).Scan(&val)
 	if err == redis.Nil {
-		logrus.Printf("cache: could not find the order: %v", err)
-		return nil, err
+		return nil, errors.New("no result in cache")
 	}
 	err = json.Unmarshal(val, order)
 	if err != nil {
@@ -52,6 +50,15 @@ func (c *Cache) OrderInfo(key uuid.UUID) (*models.Orders, error) {
 		return nil, err
 	}
 	return order, nil
+}
+
+func (c *Cache) Recover(orders []models.Orders) error {
+	for _, v := range orders {
+		if err := c.NewOrder(v); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (c *Cache) NewOrder(order models.Orders) error {
@@ -64,7 +71,7 @@ func (c *Cache) NewOrder(order models.Orders) error {
 	if err != nil {
 		return errors.Wrap(err, "cache: could not save a new val to cache")
 	}
-	logrus.Printf("saved new value to cache: %v", order.OrderID)
+	logrus.Printf("Saved new value to cache: %v", order.OrderID)
 	return nil
 }
 
@@ -80,4 +87,5 @@ func (c *Cache) DataRecovery(orders []models.Orders) error {
 type Order interface {
 	NewOrder(order models.Orders) error
 	OrderInfo(uuid uuid.UUID) (*models.Orders, error)
+	Recover(orders []models.Orders) error
 }

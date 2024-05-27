@@ -36,6 +36,11 @@ func main() {
 	service := service.NewService(repository, cache)
 	handler := handler.NewHandler(service)
 
+	err = service.RecoverCache()
+	if err != nil {
+		logrus.Fatalf("Could not recover cache: %v", err)
+	}
+
 	server := server.NewServer(handler.InitRoutes(), conf)
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
@@ -82,7 +87,3 @@ func main() {
 func NewTicker(duration int) *ticker.Ticker {
 	return ticker.New(time.Duration(time.Duration(duration)) * time.Second)
 }
-
-//ToDo: Redis
-//ToDo: Proper error handling when rows have hot been found
-//ToDo: (Probably) fixing models so that a more accurate response is returned

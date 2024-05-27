@@ -19,4 +19,5 @@ func NewService(repository *repository.Repository, cache *cache.Cache) *Service 
 type Order interface {
 	NewOrder(order models.Orders) error
 	OrderInfo(uuid uuid.UUID) (*models.Orders, error)
+	RecoverCache() error
 }
