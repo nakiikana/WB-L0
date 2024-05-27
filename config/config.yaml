@@ -9,6 +9,6 @@ server:
   port: "8080"
   host: "localhost"
 redis: 
-  host: "redis"
+  host: "localhost"
   port: "6379"
   password: ""

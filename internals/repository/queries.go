@@ -37,4 +37,7 @@ const (
 		SELECT * FROM items
 		WHERE track_number = $1
 	`
+	getAllOrders = `
+		SELECT * FROM orders
+	`
 )

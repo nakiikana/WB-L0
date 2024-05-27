@@ -52,5 +52,5 @@ func (s *Subscriber) saveMessage(m *stan.Msg) error {
 
 type Order interface {
 	NewOrder(order models.Orders) error
-	OrderInfo(uuid uuid.UUID) (models.Orders, error)
+	OrderInfo(uuid uuid.UUID) (*models.Orders, error)
 }

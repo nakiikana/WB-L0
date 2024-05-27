@@ -18,15 +18,18 @@ func (h *Handler) OrderInfo(w http.ResponseWriter, r *http.Request) {
 	order, err := h.s.OrderInfo(uuid)
 	if err != nil {
 		logrus.Errorf("error while retrieving the order: %v", err)
+		return
 	}
 	orderInfo, err := json.Marshal(order)
 	if err != nil {
 		logrus.Errorf("error while marshalling order")
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	if _, err = w.Write(orderInfo); err != nil {
 		logrus.Errorf("error when writing orderInfo")
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 }
