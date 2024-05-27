@@ -31,10 +31,10 @@ func main() {
 	}
 	defer db.Close()
 
+	cache := cache.NewCache(conf)
 	repository := repository.NewRepository(db)
-	service := service.NewService(repository)
+	service := service.NewService(repository, cache)
 	handler := handler.NewHandler(service)
-	cache.NewCache(conf)
 
 	server := server.NewServer(handler.InitRoutes(), conf)
 	interrupt := make(chan os.Signal, 1)
