@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/internals/schema/init.sql
+      - ./init.sql:/docker-entrypoint-initdb.d/internals/migrations/000001_init.up.sql
       - db-data:/var/lib/postgresql/data
 
     ports:
@@ -28,7 +28,6 @@ services:
       - "8222:8222"
     volumes:
       - "./nats-streaming-1:/data"
-
   app:
     build: .
     ports:
