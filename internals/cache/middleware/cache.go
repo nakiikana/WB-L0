@@ -30,7 +30,7 @@ func NewRedisConnection(config *config.Configuration) *redis.Client {
 	})
 	ping, err := client.Ping(context.Background()).Result()
 	if err != nil {
-		logrus.Errorf("Error when pinging redis: %v", err)
+		logrus.Fatalf("Error when pinging redis: %v", err)
 		return nil
 	}
 	logrus.Printf("Successfully started a new redis connection: %s\n", ping)

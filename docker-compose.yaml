@@ -10,7 +10,7 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/internals/migrations/000001_init.up.sql
+      - ./000001_init.up.sql:/docker-entrypoint-initdb.d/internals/migrations/000001_init.up.sql
       - db-data:/var/lib/postgresql/data
 
     ports:
